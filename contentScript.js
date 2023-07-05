@@ -1,9 +1,38 @@
+const observerConfig = { childList: true, subtree: true };
+
 chrome.runtime.onMessage.addListener((obj, sender, response) => {
   const { type, value, videoId } = obj;
 
   if (type === "NEW") {
-    const HTML_TEXT = document.body;
+    commentsObserver.observe(document, observerConfig);
   }
 });
 
-const addTranslateButton = (commentNode) => {};
+const commentsObserver = new MutationObserver((e) => {
+  for (let mut of e) {
+    if (mut.target.id == "contents") {
+      const commentNodes = document.querySelectorAll("ytd-comment-thread-renderer");
+      for (let node of commentNodes) {
+        addTranslateButton(node);
+      }
+    }
+  }
+});
+
+const addTranslateButton = (commentNode) => {
+  // add a translate button/text to the comment node
+  const commentText = commentNode.querySelector("#toolbar");
+
+  if (commentNode.querySelector("#translate_text_button") == null) {
+    let translate_text_button = document.createElement("button");
+    translate_text_button.innerText = "Translate";
+    translate_text_button.id = "translate_text_button";
+
+    commentText.appendChild(translate_text_button);
+
+    translate_text_button.addEventListener("click", () => {
+      comment_text = commentNode.querySelector("#content-text").innerText;
+      console.log(comment_text);
+    });
+  }
+};

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Youtube Tracker",
+  "name": "Youtube Translater",
   "version": "0.1.0",
   "permissions": ["storage", "tabs"],
   "host_permissions": ["https://*.youtube.com/*"],
