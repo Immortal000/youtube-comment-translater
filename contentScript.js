@@ -32,7 +32,17 @@ const addTranslateButton = (commentNode) => {
 
     translate_text_button.addEventListener("click", () => {
       comment_text = commentNode.querySelector("#content-text").innerText;
-      console.log(comment_text);
+      translated_text = "";
+      fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(
+          comment_text
+        )}`
+      )
+        .then((response) => response.json())
+        .then((json) => {
+          for (let i = 0; i < json[0].length; i++) translated_text += json[0][i][0].replace("\n", " ");
+          commentNode.querySelector("#content-text").innerText = translated_text;
+        });
     });
   }
 };
