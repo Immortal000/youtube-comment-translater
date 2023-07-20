@@ -1,4 +1,12 @@
 const observerConfig = { childList: true, subtree: true };
+let translation_code;
+
+const getTranslationLanguageCode = async () => {
+  const storage = await chrome.storage.local.get();
+  translation_code = storage.destination;
+};
+
+getTranslationLanguageCode();
 
 chrome.runtime.onMessage.addListener((obj, sender, response) => {
   const { type, value, videoId } = obj;
@@ -28,21 +36,36 @@ const addTranslateButton = (commentNode) => {
     translate_text_button.innerText = "Translate";
     translate_text_button.id = "translate_text_button";
 
+    translate_text_button.setAttribute("translate", "no");
+
     commentText.appendChild(translate_text_button);
 
     translate_text_button.addEventListener("click", () => {
-      comment_text = commentNode.querySelector("#content-text").innerText;
+      let comment_text = commentNode.querySelector("#content-text").innerText;
+
       translated_text = "";
-      fetch(
-        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(
-          comment_text
-        )}`
-      )
-        .then((response) => response.json())
-        .then((json) => {
-          for (let i = 0; i < json[0].length; i++) translated_text += json[0][i][0].replace("\n", " ");
-          commentNode.querySelector("#content-text").innerText = translated_text;
-        });
+
+      if (translate_text_button.getAttribute("translate") == "no") {
+        translate_text_button.setAttribute("data-original", comment_text);
+        translate_text_button.setAttribute("translate", "yes");
+        fetch(
+          `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${translation_code}&dt=t&q=${encodeURIComponent(
+            comment_text
+          )}`
+        )
+          .then((response) => response.json())
+          .then((json) => {
+            // for (let i = 0; i < json[0].length; i++) translated_text += json[0][i][0].replace("\n", " ");
+            for (let i = 0; i < json[0].length; i++) translated_text += json[0][i][0];
+            commentNode.querySelector("#content-text").innerText = translated_text;
+          });
+
+        translate_text_button.innerText = "See Original";
+      } else {
+        commentNode.querySelector("#content-text").innerText = translate_text_button.getAttribute("data-original");
+        translate_text_button.setAttribute("translate", "no");
+        translate_text_button.innerText = "Translate";
+      }
     });
   }
 };
