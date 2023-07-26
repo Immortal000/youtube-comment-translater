@@ -4,11 +4,12 @@
   "description": "Translate youtube comments to a preferred language",
   "version": "0.1.0",
   "permissions": ["storage", "tabs"],
-  "host_permissions": ["https://*.youtube.com/*"],
+  "icons": {
+    "128": "icons/logo.png"
+  },
   "background": {
     "service_worker": "background.js"
   },
-  "icons": [],
   "action": {
     "default_popup": "popup/popup.html"
   },
